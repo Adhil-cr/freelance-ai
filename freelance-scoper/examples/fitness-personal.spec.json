@@ -1,0 +1,25 @@
+{
+  "client": "Edappally client",
+  "project": "Personal calorie and body-weight tracker",
+  "usage": "Personal use (one user)",
+  "confidence": "Firm",
+  "category": "Health / fitness / nutrition app",
+  "tier": "Intermediate",
+  "features": [
+    "Login (email/password)",
+    "Profile & goals setup",
+    "Calorie & macro calculator (BMR/TDEE)",
+    "Food logging with serving sizes",
+    "Progress charts & trends",
+    {"name": "Data export / account deletion (privacy)", "priority": "should"},
+    {"name": "Multi-language UI (e.g. English + Malayalam)", "priority": "later"},
+    {"name": "Meal planner", "priority": "later"}
+  ],
+  "custom_features": [
+    {"name": "Starter Kerala food list (about 150 items, sourced and checked)", "hours": 30, "priority": "must"}
+  ],
+  "tech": "Django (Python)",
+  "urgency": "Standard",
+  "risk": "Medium",
+  "extras": ["Domain (.com/.in, per year)"]
+}

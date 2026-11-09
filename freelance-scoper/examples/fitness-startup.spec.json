@@ -1,0 +1,25 @@
+{
+  "client": "Edappally client",
+  "project": "Fitness and Kerala nutrition app for many users",
+  "usage": "Scalable startup product",
+  "confidence": "Draft",
+  "category": "Health / fitness / nutrition app",
+  "tier": "Intermediate",
+  "features": [
+    "Registration", "Login (email/password)", "OTP verification",
+    "Profile & goals setup", "Calorie & macro calculator (BMR/TDEE)",
+    "Food logging with serving sizes", "Progress charts & trends",
+    "Admin panel", "Analytics integration", "Notifications (in-app/email/push)",
+    "Data export / account deletion (privacy)",
+    {"name": "Meal planner", "priority": "should"},
+    {"name": "Subscription billing", "priority": "later"},
+    {"name": "Coach / trainer dashboard", "priority": "later"}
+  ],
+  "custom_features": [
+    {"name": "Curated Kerala food database (about 500 items, sourced and checked)", "hours": 60, "priority": "must"}
+  ],
+  "tech": "Flutter / React Native",
+  "urgency": "Standard",
+  "risk": "Medium",
+  "extras": ["Domain (.com/.in, per year)", "Google Play developer account (one-time, about USD 25)"]
+}

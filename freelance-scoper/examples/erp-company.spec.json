@@ -1,0 +1,18 @@
+{
+  "client": "Small manufacturer",
+  "project": "Internal inventory, purchase and invoicing system",
+  "usage": "Company internal system (ERP/CRM)",
+  "confidence": "Draft",
+  "category": "ERP / HRMS",
+  "tier": "Intermediate",
+  "features": [
+    "Login (email/password)", "User roles & permissions", "Admin panel",
+    "Inventory & stock tracking", "Invoicing & GST reports", "Reports (exportable)",
+    "Audit log (who changed what)", "Data import (CSV/Excel migration)",
+    {"name": "Approval workflow (multi-step)", "priority": "should"},
+    {"name": "WhatsApp integration", "priority": "later"}
+  ],
+  "tech": "Django (Python)",
+  "urgency": "Standard",
+  "risk": "High"
+}

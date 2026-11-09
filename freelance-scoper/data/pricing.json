@@ -1,0 +1,167 @@
+{
+  "_meta": {
+    "version": 2,
+    "currency": "INR",
+    "last_reviewed": "2026-11-08",
+    "note": "Starting values for a junior-to-mid freelancer with one strong portfolio project and 1-2 small projects. v2 removes the stacked category and risk price multipliers that inflated v1 quotes: category now only sets foundation hours, risk adds buffer hours, and the realised hourly rate is checked against your rate band. Edit to match your market. Rates and tax rules change: re-check every few months."
+  },
+  "rates": {
+    "base_hourly": 650,
+    "experience_multiplier": 1.0,
+    "min_hourly": 500,
+    "profit_margin": 0.20,
+    "gst": 0.18,
+    "buffer": 0.15,
+    "meetings_share": 0.08,
+    "included_revision_rounds": 2,
+    "hours_per_extra_revision_round": 4,
+    "floor_vs_fair_max": 0.90,
+    "rate_band": {"low": 500, "high": 950, "label": "junior with one strong project"}
+  },
+  "usage_profiles": {
+    "Personal use (one user)": {
+      "base_scale": 0.5, "client_mult": 0.85, "anchor_uplift": 0.10,
+      "default_hosting": "Free tier / hobby (personal use)",
+      "skip_by_default": ["Admin panel", "User roles & permissions", "Analytics integration", "SEO setup", "Multi-language UI (e.g. English + Malayalam)"],
+      "note": "One person uses it. Simple polish, no admin or roles, no scale work. Cheapest honest version; the client may be happier with an existing app, so ask."
+    },
+    "Small business / local customers": {
+      "base_scale": 0.8, "client_mult": 1.0, "anchor_uplift": 0.15,
+      "default_hosting": "Shared hosting (small site)",
+      "skip_by_default": [],
+      "note": "A few dozen to a few thousand users or customers. Needs an admin view, basic security, backups."
+    },
+    "Scalable startup product": {
+      "base_scale": 1.2, "client_mult": 1.1, "anchor_uplift": 0.20,
+      "default_hosting": "VPS (mid-traffic app)",
+      "skip_by_default": [],
+      "note": "Many users, may charge money or raise funding. Needs analytics, admin, clean architecture, a roadmap, and clear IP ownership. Prefer a phased agreement."
+    },
+    "Company internal system (ERP/CRM)": {
+      "base_scale": 1.3, "client_mult": 1.2, "anchor_uplift": 0.25,
+      "default_hosting": "VPS (mid-traffic app)",
+      "skip_by_default": [],
+      "note": "Staff use it daily. Needs roles, approvals, reports, data import, audit trail, and support after launch. Discovery should be a paid first phase."
+    },
+    "Not sure yet": {
+      "base_scale": 1.0, "client_mult": 1.0, "anchor_uplift": 0.15,
+      "default_hosting": "Shared hosting (small site)",
+      "skip_by_default": [],
+      "note": "Usage type unknown: treat every number as a wide, draft range."
+    }
+  },
+  "confidence": {
+    "Draft": {"low": 0.75, "high": 1.40, "note": "Key answers missing. Show a range only. Do not send a single price."},
+    "Firm": {"low": 0.88, "high": 1.20, "note": "Usage type, budget stance and must-have scope known."},
+    "Quote-ready": {"low": 0.95, "high": 1.08, "note": "Scope confirmed with the client. A single price is fine."}
+  },
+  "categories": {
+    "Portfolio / personal site": {"base_hours": 6},
+    "Business website": {"base_hours": 12},
+    "School / institution site": {"base_hours": 18},
+    "Restaurant website": {"base_hours": 10},
+    "Real estate website": {"base_hours": 20},
+    "E-commerce store": {"base_hours": 30},
+    "Marketplace (multi-vendor)": {"base_hours": 55},
+    "SaaS product": {"base_hours": 50},
+    "Booking platform": {"base_hours": 35},
+    "Learning platform (LMS)": {"base_hours": 45},
+    "Community platform": {"base_hours": 40},
+    "CRM": {"base_hours": 45},
+    "ERP / HRMS": {"base_hours": 80},
+    "Mobile app (cross-platform)": {"base_hours": 35},
+    "Health / fitness / nutrition app": {"base_hours": 30}
+  },
+  "category_note": "base_hours is the FOUNDATION only: project setup, design system and navigation, deployment pipeline, basic QA. Auth, admin and every real feature are priced separately in the feature library, so nothing is counted twice.",
+  "tech": {
+    "HTML/CSS + JS": {"hours_mult": 0.9, "rate_mult": 0.85, "note": "fastest to build, lowest rate ceiling"},
+    "React / Next.js": {"hours_mult": 1.1, "rate_mult": 1.2, "note": "more setup and architecture, premium rate"},
+    "Django (Python)": {"hours_mult": 1.05, "rate_mult": 1.2, "note": "ORM and admin save time, strong backend rate"},
+    "Node.js": {"hours_mult": 1.1, "rate_mult": 1.15, "note": "more boilerplate than Django"},
+    "Laravel (PHP)": {"hours_mult": 1.0, "rate_mult": 1.1, "note": "mature framework, standard pace"},
+    "Flutter / React Native": {"hours_mult": 1.15, "rate_mult": 1.2, "note": "cross-platform mobile, store release overhead"},
+    "With AI integration": {"hours_mult": 1.35, "rate_mult": 1.4, "note": "prompt and evaluation work adds real build time"},
+    "Microservices architecture": {"hours_mult": 1.45, "rate_mult": 1.3, "note": "infra and deployment complexity"}
+  },
+  "urgency": {
+    "Standard": {"rate_mult": 1.0, "hours_per_day": 5},
+    "Rush": {"rate_mult": 1.3, "hours_per_day": 8},
+    "Emergency": {"rate_mult": 1.6, "hours_per_day": 10}
+  },
+  "risk": {
+    "Low": {"extra_buffer": 0.0, "meaning": "clear scope, familiar stack and domain"},
+    "Medium": {"extra_buffer": 0.10, "meaning": "some unknowns: data quality, third-party approvals, unfamiliar domain"},
+    "High": {"extra_buffer": 0.25, "meaning": "vague scope, new technology, legacy data, many stakeholders"}
+  },
+  "phase_shares": {
+    "Discovery & planning": 0.07,
+    "UI/UX design & prototype": 0.15,
+    "Backend & database": 0.28,
+    "Frontend": 0.22,
+    "Integrations & data": 0.08,
+    "Testing & fixes": 0.12,
+    "Deployment & handover": 0.08
+  },
+  "features": {
+    "Login (email/password)": {"b": 3, "i": 5, "a": 8},
+    "Registration": {"b": 3, "i": 5, "a": 8},
+    "OTP verification": {"b": 4, "i": 7, "a": 12},
+    "Email verification": {"b": 2, "i": 4, "a": 6},
+    "Social login (OAuth)": {"b": 3, "i": 5, "a": 8},
+    "User roles & permissions": {"b": 5, "i": 10, "a": 18},
+    "Admin panel": {"b": 8, "i": 16, "a": 28},
+    "Dashboard (data views)": {"b": 6, "i": 14, "a": 24},
+    "Blog module": {"b": 6, "i": 10, "a": 16},
+    "Full CMS": {"b": 20, "i": 40, "a": 70},
+    "Search & filters": {"b": 4, "i": 8, "a": 14},
+    "Chat (in-app)": {"b": 10, "i": 20, "a": 40},
+    "Notifications (in-app/email/push)": {"b": 4, "i": 8, "a": 16},
+    "Reports (exportable)": {"b": 5, "i": 10, "a": 20},
+    "Payment gateway": {"b": 8, "i": 14, "a": 24},
+    "Subscription billing": {"b": 12, "i": 22, "a": 38},
+    "Booking / appointment system": {"b": 10, "i": 20, "a": 36},
+    "Calendar integration": {"b": 4, "i": 8, "a": 14},
+    "Image / file upload": {"b": 3, "i": 6, "a": 10},
+    "Video upload & playback": {"b": 6, "i": 12, "a": 24},
+    "Analytics integration": {"b": 2, "i": 4, "a": 8},
+    "SEO setup": {"b": 3, "i": 6, "a": 10},
+    "Contact form": {"b": 1, "i": 2, "a": 4},
+    "WhatsApp integration": {"b": 4, "i": 8, "a": 16},
+    "AI chatbot": {"b": 8, "i": 18, "a": 40},
+    "Third-party API integration": {"b": 4, "i": 8, "a": 16},
+    "Multi-language UI (e.g. English + Malayalam)": {"b": 6, "i": 10, "a": 16},
+    "Data import (CSV/Excel migration)": {"b": 6, "i": 12, "a": 24},
+    "Audit log (who changed what)": {"b": 4, "i": 8, "a": 14},
+    "Approval workflow (multi-step)": {"b": 8, "i": 16, "a": 30},
+    "Inventory & stock tracking": {"b": 10, "i": 20, "a": 36},
+    "Invoicing & GST reports": {"b": 10, "i": 18, "a": 32},
+    "Multi-tenant / multiple organizations": {"b": 12, "i": 24, "a": 44},
+    "Profile & goals setup": {"b": 4, "i": 8, "a": 12},
+    "Calorie & macro calculator (BMR/TDEE)": {"b": 4, "i": 8, "a": 14},
+    "Regional food database (curated)": {"b": 20, "i": 40, "a": 80},
+    "Food logging with serving sizes": {"b": 10, "i": 20, "a": 36},
+    "Progress charts & trends": {"b": 6, "i": 12, "a": 20},
+    "Meal planner": {"b": 12, "i": 24, "a": 44},
+    "Workout builder / exercise library": {"b": 14, "i": 28, "a": 50},
+    "Wearable / Google Fit / Apple Health sync": {"b": 10, "i": 20, "a": 36},
+    "Coach / trainer dashboard": {"b": 16, "i": 32, "a": 56},
+    "Offline mode (mobile)": {"b": 8, "i": 16, "a": 28},
+    "Data export / account deletion (privacy)": {"b": 3, "i": 6, "a": 10}
+  },
+  "hosting_yearly": {
+    "Free tier / hobby (personal use)": 0,
+    "Shared hosting (small site)": 3000,
+    "VPS (mid-traffic app)": 9000,
+    "Cloud (AWS/GCP, scaling app)": 18000
+  },
+  "other_recurring": {
+    "Domain (.com/.in, per year)": 900,
+    "Google Play developer account (one-time, about USD 25)": 2100,
+    "Apple Developer Program (per year, about USD 99)": 8300
+  },
+  "maintenance_monthly": {
+    "Basic (security updates, backups, 2 h fixes)": 3000,
+    "Professional (5 h, monitoring, monthly report)": 7000,
+    "Premium (12 h, priority response)": 15000
+  }
+}
