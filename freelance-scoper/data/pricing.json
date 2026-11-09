@@ -1,9 +1,9 @@
 {
   "_meta": {
-    "version": 2,
+    "version": "1.0.0",
     "currency": "INR",
     "last_reviewed": "2026-11-08",
-    "note": "Starting values for a junior-to-mid freelancer with one strong portfolio project and 1-2 small projects. v2 removes the stacked category and risk price multipliers that inflated v1 quotes: category now only sets foundation hours, risk adds buffer hours, and the realised hourly rate is checked against your rate band. Edit to match your market. Rates and tax rules change: re-check every few months."
+    "note": "Starting values for a junior-to-mid freelancer with one strong portfolio project and 1-2 small projects. This version avoids the stacked category and risk price multipliers that inflated early drafts: category now only sets foundation hours, risk adds buffer hours, and the realised hourly rate is checked against your rate band. Edit to match your market. Rates and tax rules change: re-check every few months."
   },
   "rates": {
     "base_hourly": 650,

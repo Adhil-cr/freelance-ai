@@ -1,9 +1,9 @@
-# Pricing model (v2), for hand calculation or porting
+# Pricing model, for hand calculation or porting
 
 Mirrors `scripts/quote.py`. Values live in `data/pricing.json`.
 
-## What changed from v1
-v1 multiplied the price by a category factor, a client-size factor and a risk factor. They stacked, so a simple personal tool was priced like a product and the realised hourly rate jumped to about Rs 1,500. In v2: category only sets **foundation hours**, risk adds **buffer hours**, the usage type scales foundation and sets a modest client factor, and the realised rate is checked against the freelancer's band.
+## Design note: why category and risk are not price multipliers
+An early design multiplied the price by a category factor, a client-size factor and a risk factor. They stacked, so a simple personal tool was priced like a product and the realised hourly rate jumped to about Rs 1,500. Now: category only sets **foundation hours**, risk adds **buffer hours**, the usage type scales foundation and sets a modest client factor, and the realised rate is checked against the freelancer's band.
 
 ## Hours
 ```

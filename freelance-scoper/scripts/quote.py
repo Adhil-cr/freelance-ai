@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Deterministic quote calculator for the freelance-scoper skill (v2).
+"""Deterministic quote calculator for the freelance-scoper skill.
 
 The language model never invents prices or hours. It maps the brief onto names in
 data/pricing.json, writes a small spec file, and runs this script.
