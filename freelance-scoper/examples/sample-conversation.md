@@ -1,4 +1,4 @@
-# Sample conversation (shows the v2 behaviour; all numbers come from `scripts/quote.py`)
+# Sample conversation (illustrative numbers; the live skill takes every figure from `scripts/quote.py`)
 
 ## Turn 1: freelancer pastes the brief
 

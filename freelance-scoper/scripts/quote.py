@@ -12,6 +12,8 @@ Usage:
     python scripts/quote.py spec.json --json > state/v2.json
     python scripts/quote.py spec.json --compare state/v1.json   # what changed since the last run
     python scripts/quote.py spec.json --rate 900 --exp 1.1 --min-rate 600
+    python scripts/quote.py spec.json --options             # six pricing models + lean/recommended/premium packages
+    python scripts/quote.py spec.json --proposal            # client-ready proposal draft (markdown)
 
 Spec (JSON). Only category, usage and tech are required:
 {
@@ -33,6 +35,10 @@ Spec (JSON). Only category, usage and tech are required:
   "hosting": "Free tier / hobby (personal use)",
   "extras": ["Domain (.com/.in, per year)"],
   "advance_pct": 40,
+  "client_type": "Small business",         # Individual / personal client | Small business | Startup | Agency (white-label) | Enterprise / corporate
+  "client_region": "India",                # India | UAE / Gulf | UK | EU | US / Canada | Australia / NZ | Southeast Asia | Other (international)
+  "retainer_hours": 40,                    # optional, for --options
+  "client_value_yearly": 0,                # optional, yearly Rs value to the client, for value-based pricing in --options
   "base_hourly": 700, "experience_multiplier": 1.0, "min_hourly": 500   # optional overrides
 }
 """
@@ -96,6 +102,11 @@ def compute(spec, data, rate=None, exp=None, min_rate=None):
     tech = lookup(data["tech"], spec["tech"], "tech")
     urg = lookup(data["urgency"], spec.get("urgency", "Standard"), "urgency")
     risk = lookup(data["risk"], spec.get("risk", "Low"), "risk")
+    ct_name = spec.get("client_type", "Small business")
+    ct = lookup(data.get("client_types", {ct_name: {"rate_mult": 1.0, "min_advance_pct": 40, "note": ""}}), ct_name, "client_type")
+    regions = data.get("_regions", {"India": {"currency": "INR", "symbol": "Rs", "fx_inr": 1, "rate_mult": 1.0, "pack": "regions/india-kerala.md", "cross_border": False}})
+    region_name = spec.get("client_region", "India")
+    region = lookup(regions, region_name, "client_region")
     conf_name = spec.get("confidence", "Draft")
     conf = lookup(data["confidence"], conf_name, "confidence")
     tier = spec.get("tier", "Intermediate")
@@ -114,7 +125,7 @@ def compute(spec, data, rate=None, exp=None, min_rate=None):
     meetings = pre * r["meetings_share"]
     total = pre + buffer + meetings
 
-    eff_rate = base_rate * exp_mult * tech["rate_mult"] * urg["rate_mult"]
+    eff_rate = base_rate * exp_mult * tech["rate_mult"] * urg["rate_mult"] * ct["rate_mult"] * region["rate_mult"]
     dev_cost = total * eff_rate * prof["client_mult"]
     margin = dev_cost * r["profit_margin"]
     fair = dev_cost + margin
@@ -123,7 +134,7 @@ def compute(spec, data, rate=None, exp=None, min_rate=None):
     band = r["rate_band"]
     # the band moves with the freelancer's own rate (an expert charging Rs 900 base has a higher band)
     band_scale = exp_mult * (base_rate / r["base_hourly"])
-    band_hi = band["high"] * band_scale * max(1.0, prof["client_mult"])
+    band_hi = band["high"] * band_scale * max(1.0, prof["client_mult"] * ct["rate_mult"]) * region["rate_mult"]
     band_lo = band["low"] * band_scale
     if realised > band_hi * 1.05:
         band_status = "ABOVE your rate band"
@@ -148,7 +159,7 @@ def compute(spec, data, rate=None, exp=None, min_rate=None):
     hosting = lookup(data["hosting_yearly"], hosting_name, "hosting")
     extras = [(e, lookup(data["other_recurring"], e, "extra")) for e in spec.get("extras", [])]
 
-    adv_default = 50 if fair < 60000 else 40
+    adv_default = 50 if fair < 60000 else ct["min_advance_pct"]
     adv_pct = spec.get("advance_pct", adv_default)
     adv = fair * adv_pct / 100
     rest = fair - adv
@@ -163,7 +174,10 @@ def compute(spec, data, rate=None, exp=None, min_rate=None):
                    "confidence": conf_name, "category": spec["category"], "tier": tier,
                    "tech": spec["tech"], "urgency": spec.get("urgency", "Standard"),
                    "risk": spec.get("risk", "Low"), "base_rate": base_rate,
-                   "experience_multiplier": exp_mult, "min_hourly": floor_rate},
+                   "experience_multiplier": exp_mult, "min_hourly": floor_rate,
+                   "client_type": ct_name, "client_region": region_name},
+        "currency": {"code": region["currency"], "symbol": region["symbol"], "fx_inr": region["fx_inr"],
+                     "cross_border": region.get("cross_border", False), "pack": region.get("pack")},
         "features": feats,
         "hours": {"foundation": round(foundation, 1), "features": feature_hours,
                   "tech_scaled": round(tech_scaled, 1), "extra_revision": extra_rev,
@@ -171,6 +185,7 @@ def compute(spec, data, rate=None, exp=None, min_rate=None):
                   "meetings": round(meetings, 1), "total": round(total, 1),
                   "calendar_days": round(days, 1), "hours_per_day": urg["hours_per_day"]},
         "rate": {"effective_hourly": round(eff_rate), "client_mult": prof["client_mult"],
+                 "client_type_mult": ct["rate_mult"], "region_mult": region["rate_mult"],
                  "tech_rate_mult": tech["rate_mult"], "urgency_rate_mult": urg["rate_mult"],
                  "realised_hourly": round(realised), "band_status": band_status,
                  "band": [round(band_lo), round(band_hi)],
@@ -184,8 +199,143 @@ def compute(spec, data, rate=None, exp=None, min_rate=None):
         "payments": [[n, round(v)] for n, v in schedule],
         "recurring": {"hosting": [hosting_name, hosting], "extras": [[n, v] for n, v in extras],
                       "year1_total": hosting + sum(v for _, v in extras)},
-        "notes": {"profile_note": prof["note"], "confidence_note": conf["note"]},
+        "notes": {"profile_note": prof["note"], "confidence_note": conf["note"], "client_type_note": ct["note"]},
     }
+
+
+def money(n, res):
+    """INR amount, with an approximate client-currency amount for cross-border clients."""
+    c = res["currency"]
+    if not c["cross_border"]:
+        return inr(n)
+    return "{}{:,} ({})".format(c["symbol"], int(round(n / c["fx_inr"])), inr(n))
+
+
+def _scoped(spec, keep):
+    s = copy.deepcopy(spec)
+    s["features"] = [f for f in s.get("features", []) if (f.get("priority", "must") if isinstance(f, dict) else "must") in keep]
+    s["custom_features"] = [f for f in s.get("custom_features", []) if f.get("priority", "must") in keep]
+    return s
+
+
+def pricing_options(spec, data, res, **kw):
+    """Six ways to price the same project. All numbers are derived from the main result."""
+    ms = data["model_settings"]
+    p, h, rt = res["price"], res["hours"], res["rate"]
+    fair = p["fair_ex_gst"]
+    out = {}
+    packs = []
+    for label, keep in zip(ms["package_labels"], (("must",), ("must", "should"), ("must", "should", "later"))):
+        r2 = compute(_scoped(spec, keep), data, **kw)
+        packs.append({"label": label, "price": r2["price"]["fair_ex_gst"], "hours": r2["hours"]["total"]})
+    out["packages"] = packs
+    out["fixed"] = {"price": fair, "range": [p["range_low"], p["range_high"]]}
+    out["hourly"] = {"rate": round(rt["realised_hourly"] / 10) * 10, "est_hours": h["total"],
+                     "est_hours_range": [round(h["total"] * 0.9), round(h["total"] * 1.25)],
+                     "weekly_cap_hours": h["hours_per_day"] * 5}
+    phase_hours = dict(res["phases"])
+    total_ph = sum(phase_hours.values()) or 1
+    adv_pct = spec.get("advance_pct", 50 if fair < 60000 else 40)
+    advance = fair * adv_pct / 100
+    rest = fair - advance
+    stones = [["Advance (before any work)", round(advance)]]
+    for name, members in ms["milestones"]:
+        share = sum(phase_hours.get(m, 0) for m in members) / total_ph
+        stones.append([name, round(rest * share)])
+    out["milestones"] = stones
+    rh = spec.get("retainer_hours", ms["retainer_hours_default"])
+    rrate = rt["realised_hourly"] * (1 - ms["retainer_discount"])
+    out["retainer"] = {"hours_per_month": rh, "rate": round(rrate), "monthly": round(rh * rrate),
+                       "min_months": ms["retainer_min_months"]}
+    val = spec.get("client_value_yearly", 0)
+    if val:
+        lo, hi = val * ms["value_share_low"], val * ms["value_share_high"]
+        out["value"] = {"yearly_value": val, "band": [round(lo), round(hi)], "suggested": round(min(max(fair, lo), hi)),
+                        "below_cost": lo < fair}
+    return out
+
+
+def md_options(opt, res):
+    m = lambda n: money(n, res)
+    L = ["**Pricing options for this project** (same scope, different shape; before GST)", ""]
+    L.append("| Model | When it fits | What to quote |")
+    L.append("|---|---|---|")
+    f, hr, rt = opt["fixed"], opt["hourly"], opt["retainer"]
+    L.append("| Fixed price | Scope is clear and signed off | {} (range {} to {}) |".format(m(f["price"]), m(f["range"][0]), m(f["range"][1])))
+    L.append("| Hourly (time and materials) | Scope is unclear or will keep changing | {}/h, about {} to {} h, weekly cap {} h |".format(
+        m(hr["rate"]), hr["est_hours_range"][0], hr["est_hours_range"][1], hr["weekly_cap_hours"]))
+    L.append("| Milestones | Mid-size project, cash-flow protection | " + "; ".join("{} {}".format(n, m(v)) for n, v in opt["milestones"]) + " |")
+    L.append("| Retainer | Ongoing work after launch | {} h/month at {}/h = {}/month, minimum {} months |".format(
+        rt["hours_per_month"], m(rt["rate"]), m(rt["monthly"]), rt["min_months"]))
+    if "value" in opt:
+        v = opt["value"]
+        L.append("| Value-based | The product earns or saves the client money | {} to {} (10 to 20 percent of yearly value {}); suggested {}{} |".format(
+            m(v["band"][0]), m(v["band"][1]), m(v["yearly_value"]), m(v["suggested"]),
+            "; below your cost price, do not use" if v["below_cost"] and v["suggested"] < f["price"] else ""))
+    L.append("")
+    L.append("**Packages to offer the client (let them choose):**")
+    L.append("")
+    L.append("| Package | Price | Hours |")
+    L.append("|---|---|---|")
+    for pk in opt["packages"]:
+        L.append("| {} | {} | {} |".format(pk["label"], m(pk["price"]), pk["hours"]))
+    if len({pk["price"] for pk in opt["packages"]}) == 1:
+        L.append("")
+        L.append("All features are tagged must-have, so the packages are identical. Tag some features should or later to get real choices.")
+    return "\n".join(L)
+
+
+def md_proposal(spec, data, res, opt, packs):
+    """Client-facing proposal draft. res/opt describe the first release (must + should); packs are the full package options."""
+    i, p, h, rt, c = res["inputs"], res["price"], res["hours"], res["rate"], res["currency"]
+    m = lambda n: money(n, res)
+    title = i["project"] or "Project"
+    must = [f["name"] for f in res["features"] if f["priority"] in ("must", "should")]
+    should = []
+    later = [f["name"] for f in norm_features(spec, data, spec.get("tier", "Intermediate")) if f["priority"] == "later"]
+    L = ["# Proposal: {}".format(title), "",
+         "Prepared for: {}  |  Prepared by: [Your name]  |  Date: [date]  |  Valid for 14 days".format(i["client"] or "[Client name]"), "",
+         "## What I understood", "", "[2 to 3 lines in the client's words: the problem, who will use it, what success looks like.]", "",
+         "## What is included (first version)", ""]
+    L += ["- " + n for n in must] or ["- [list]"]
+    if should:
+        L += ["", "**Included if budget allows:**"] + ["- " + n for n in should]
+    if later:
+        L += ["", "**Planned for a later phase (not in this price):**"] + ["- " + n for n in later]
+    outs = spec.get("out_of_scope", [])
+    L += ["", "**Not included:**"] + (["- " + n for n in outs] if outs else ["- Anything not listed above. Extra requests are quoted separately before work starts."])
+    L += ["", "## Timeline", "",
+          "About {} working days of effort, roughly {} weeks including your feedback time. The start date depends on the advance payment.".format(
+              round(h["calendar_days"]), max(1, round(h["calendar_days"] / 5 + 1))), "",
+          "## Investment (before tax)", ""]
+    if i["confidence"] == "Quote-ready":
+        L.append("**Total: {}**".format(m(p["fair_ex_gst"])))
+    else:
+        L.append("**Estimated: {} to {}** (final price confirmed after the scope sheet is approved)".format(m(p["range_low"]), m(p["range_high"])))
+    if spec.get("gst_registered"):
+        L.append("")
+        L.append("GST at 18 percent is added on top: {}.".format(inr(p["gst_if_registered"])))
+    elif c["cross_border"]:
+        L.append("")
+        L.append("Export of services to a client outside India: no Indian GST is charged on the invoice (subject to the freelancer's registration status).")
+    L += ["", "**Payment schedule:**", ""]
+    for n, v in opt["milestones"]:
+        L.append("- {}: {}".format(n, m(v)))
+    pk = packs
+    if len({x["price"] for x in pk}) > 1:
+        L += ["", "**Scope options you can choose between:**", ""] + ["- {}: {}".format(x["label"], m(x["price"])) for x in pk]
+    rc = res["recurring"]
+    L += ["", "## Running costs (paid by you directly, in your name)", "",
+          "- {}: about {} per year".format(rc["hosting"][0], inr(rc["hosting"][1]))] + ["- {}: about {} per year".format(n, inr(v)) for n, v in rc["extras"]]
+    L += ["", "## How we will work", "",
+          "1. You approve the scope sheet and pay the advance; I start design.",
+          "2. I show the design prototype; you reply \"approved\" in writing before I build.",
+          "3. Weekly short updates; I send a working version on staging at the midpoint.",
+          "4. You test against the agreed criteria; final payment before handover of code and accounts.",
+          "", "Included: 2 rounds of design changes and a free-fix period of 30 days after acceptance. Changes outside the scope are quoted before I start.",
+          "", "## Next step", "", "Reply \"approved\" to this proposal and I will send the scope sheet and the first invoice.", "",
+          "_Draft generated by freelance-scoper. Review every number and line before sending._"]
+    return "\n".join(L)
 
 
 def budget_fit(spec, data, budget, **kw):
@@ -231,9 +381,9 @@ def diff(old, new):
         lines.append("Added: " + "; ".join(sorted(nf - of)))
     if of - nf:
         lines.append("Removed: " + "; ".join(sorted(of - nf)))
-    for k in ("usage", "confidence", "tech", "urgency", "risk", "category", "tier"):
-        if old["inputs"][k] != new["inputs"][k]:
-            lines.append("{}: {} -> {}".format(k.capitalize(), old["inputs"][k], new["inputs"][k]))
+    for k in ("usage", "confidence", "tech", "urgency", "risk", "category", "tier", "client_type", "client_region"):
+        if old["inputs"].get(k) != new["inputs"].get(k):
+            lines.append("{}: {} -> {}".format(k.replace("_", " ").capitalize(), old["inputs"].get(k), new["inputs"].get(k)))
     return lines or ["No change in scope or price."]
 
 
@@ -250,6 +400,8 @@ def md_brief(res):
     out.append("**Hours:** {} (~{} working days at {} h/day) | **Realised rate:** Rs {}/h, {}".format(
         h["total"], h["calendar_days"], h["hours_per_day"], rt["realised_hourly"], rt["band_status"]))
     out.append("**Anchor:** {} | **Walk-away floor:** {}".format(inr(p["anchor_ex_gst"]), inr(p["floor_ex_gst"])))
+    if res["currency"]["cross_border"]:
+        out.append("**In client currency:** about {} (fair price; approximate rate, check before quoting)".format(money(p["fair_ex_gst"], res)))
     return "\n".join(out)
 
 
@@ -268,9 +420,9 @@ def md_full(res, expert=False, sens=None):
         round(h["tech_scaled"] / (h["foundation"] + h["features"]), 2) if (h["foundation"] + h["features"]) else 1,
         h["tech_scaled"], h["buffer"], int(round(h["buffer_rate"] * 100)), h["meetings"], h["total"]))
     L.append("")
-    L.append("**Rate build-up:** Rs {} base x experience {} x tech {} x urgency {} x client type {} = **Rs {}/h**; realised after margin: Rs {}/h".format(
+    L.append("**Rate build-up:** Rs {} base x experience {} x tech {} x urgency {} x usage {} x client type {} x region {} = **Rs {}/h**; realised after margin: Rs {}/h".format(
         i["base_rate"], i["experience_multiplier"], rt["tech_rate_mult"], rt["urgency_rate_mult"],
-        rt["client_mult"], rt["effective_hourly"], rt["realised_hourly"]))
+        rt["client_mult"], rt["client_type_mult"], rt["region_mult"], rt["effective_hourly"], rt["realised_hourly"]))
     if rt["band_status"].startswith("ABOVE"):
         L.append("")
         L.append("**Rate check:** realised Rs {}/h is above your band (Rs {} to {}). Either justify it with a specific skill the client needs, or cap the price at about {} (band top) and trim scope to match.".format(
@@ -339,14 +491,26 @@ def main():
     ap.add_argument("--exp", type=float)
     ap.add_argument("--min-rate", type=float)
     ap.add_argument("--data", default=str(DATA))
+    ap.add_argument("--options", action="store_true", help="show six pricing models and lean/recommended/premium packages")
+    ap.add_argument("--proposal", action="store_true", help="print a client-ready proposal draft (markdown)")
     a = ap.parse_args()
 
     spec = json.loads(Path(a.spec).read_text())
     data = json.loads(Path(a.data).read_text())
+    reg_path = Path(a.data).with_name("regions.json")
+    if reg_path.exists():
+        data["_regions"] = json.loads(reg_path.read_text())["regions"]
     kw = {"rate": a.rate, "exp": a.exp, "min_rate": a.min_rate}
     res = budget_fit(spec, data, a.budget, **kw) if a.budget else compute(spec, data, **kw)
 
+    opt = pricing_options(spec, data, res, **kw) if (a.options or a.proposal or a.json) else None
+    if a.proposal:
+        spec1 = _scoped(spec, ("must", "should"))
+        res1 = compute(spec1, data, **kw)
+        print(md_proposal(spec, data, res1, pricing_options(spec1, data, res1, **kw), opt["packages"]))
+        return
     if a.json:
+        res["options"] = opt
         print(json.dumps(res, indent=2))
         return
     if a.mode == "brief":
@@ -354,6 +518,8 @@ def main():
     else:
         sens = sensitivity(spec, data, **kw) if a.mode == "expert" else None
         print(md_full(res, expert=(a.mode == "expert"), sens=sens))
+    if a.options:
+        print("\n" + md_options(opt, res))
     if a.compare:
         old = json.loads(Path(a.compare).read_text())
         print("\n**Changed since last run:**")

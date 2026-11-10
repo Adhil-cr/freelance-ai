@@ -1,0 +1,73 @@
+{
+  "_meta": {
+    "reviewed": "2026-11-09",
+    "note": "Heuristic client-region multipliers and approximate exchange rates. They are set conservatively for a freelancer without many international reviews; Arc's 2026 benchmarks put US/Western Europe rates about 2.5x South Asia. Update fx before every quote and raise multipliers as your portfolio grows.",
+    "base_currency": "INR"
+  },
+  "regions": {
+    "India": {
+      "currency": "INR",
+      "symbol": "Rs",
+      "fx_inr": 1,
+      "rate_mult": 1.0,
+      "pack": "regions/india-kerala.md",
+      "cross_border": false
+    },
+    "UAE / Gulf": {
+      "currency": "AED",
+      "symbol": "AED ",
+      "fx_inr": 24.5,
+      "rate_mult": 1.5,
+      "pack": "regions/uae-gulf.md",
+      "cross_border": true
+    },
+    "UK": {
+      "currency": "GBP",
+      "symbol": "GBP ",
+      "fx_inr": 115,
+      "rate_mult": 1.8,
+      "pack": "regions/uk-eu.md",
+      "cross_border": true
+    },
+    "EU": {
+      "currency": "EUR",
+      "symbol": "EUR ",
+      "fx_inr": 100,
+      "rate_mult": 1.9,
+      "pack": "regions/uk-eu.md",
+      "cross_border": true
+    },
+    "US / Canada": {
+      "currency": "USD",
+      "symbol": "USD ",
+      "fx_inr": 88,
+      "rate_mult": 2.0,
+      "pack": "regions/us-canada.md",
+      "cross_border": true
+    },
+    "Australia / NZ": {
+      "currency": "AUD",
+      "symbol": "AUD ",
+      "fx_inr": 58,
+      "rate_mult": 1.9,
+      "pack": "regions/international-clients.md",
+      "cross_border": true
+    },
+    "Southeast Asia": {
+      "currency": "USD",
+      "symbol": "USD ",
+      "fx_inr": 88,
+      "rate_mult": 1.2,
+      "pack": "regions/international-clients.md",
+      "cross_border": true
+    },
+    "Other (international)": {
+      "currency": "USD",
+      "symbol": "USD ",
+      "fx_inr": 88,
+      "rate_mult": 1.5,
+      "pack": "regions/international-clients.md",
+      "cross_border": true
+    }
+  }
+}

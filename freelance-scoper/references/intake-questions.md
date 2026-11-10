@@ -41,6 +41,12 @@ Why this exists: the same brief can be a Rs 1 lakh personal tool or a Rs 5 lakh 
 **G5. Scale** (skip for personal use)
 - A. Up to 10 users, B. 10 to 500, C. 500 to 10,000, D. More, or unknown
 
+## Client type and country (changes the price and the paperwork)
+
+- **Client type:** A) an individual, B) a small business, C) a startup, D) an agency reselling your work, E) a large company. Spec value: `client_type`. Enterprise clients pay slowly (30 to 60 days) and need vendor paperwork; agencies expect a volume discount and no direct contact with their client.
+- **Client country:** A) India, B) UAE / Gulf, C) UK, D) EU, E) US / Canada, F) Australia / NZ, G) Southeast Asia, H) other. Spec value: `client_region`. Outside India: ask the currency, payment method, who pays transfer fees, time-zone overlap, and whether they need a tax form from you.
+- **Freelancer's country** (ask once, default India): if it is not India, say the paperwork and tax files are India-based and give only general guidance.
+
 ## About the freelancer (ask once, then reuse)
 - Experience level: first paid project, 1 to 3 projects, or established?
 - Stack they are comfortable with, hours per day they can really give, GST-registered or not, own hourly rate if they have one.

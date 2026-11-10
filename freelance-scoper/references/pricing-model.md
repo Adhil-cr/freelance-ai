@@ -53,3 +53,8 @@ Within included rounds (default 2): free. Extra round: about 4 hours at the effe
 
 ## Honest limits
 It is a heuristic for a junior-to-mid freelancer. Treat output as a starting point, check it against the client's budget, the local market, and a bottom-up sense of whether the hours are deliverable. Calibrate after your first few real quotes by adjusting the base rate or experience multiplier, not by editing every number.
+
+## Added in 1.1: client type, client country, pricing models
+- Rate multiplier gains two factors: `client_type` (individual 0.95, small business 1.0, startup 1.05, agency 0.85, enterprise 1.25) and `client_region` (India 1.0, Gulf 1.5, UK 1.8, EU 1.9, US/Canada 2.0, and so on; see `data/regions.json`). The rate band widens with the region multiplier. Defaults (small business, India) give the same numbers as 1.0.0.
+- Models (`--options`): fixed = fair price; hourly = realised rate with an hours range of 0.9x to 1.25x and a weekly cap; milestones = advance, then the rest split by phase hours; retainer = hours per month at the realised rate less 10 percent, minimum 3 months; value-based = 10 to 20 percent of the client's yearly value (only shown when `client_value_yearly` is given); packages = must only / must + should / everything.
+- Client currency = INR price divided by `fx_inr`. The rates are approximate; update `data/regions.json` before quoting.
