@@ -4,7 +4,7 @@
 
 Paste a client's requirement. The skill asks the questions that change the price, then builds a living **Project Card** and a freelancer's playbook: scope, stack, price range, negotiation anchor and walk-away floor, stages and payments, client onboarding, plain-language paperwork and risks.
 
-![version](https://img.shields.io/badge/version-1.1.0-blue) ![license](https://img.shields.io/badge/license-MIT-green) ![python](https://img.shields.io/badge/python-3.8%2B-informational) ![deps](https://img.shields.io/badge/dependencies-none-lightgrey) ![CI](https://github.com/Adhil-cr/freelance-ai/actions/workflows/ci.yml/badge.svg)
+![version](https://img.shields.io/badge/version-1.2.0-blue) ![license](https://img.shields.io/badge/license-MIT-green) ![python](https://img.shields.io/badge/python-3.8%2B-informational) ![deps](https://img.shields.io/badge/dependencies-none-lightgrey) ![CI](https://github.com/Adhil-cr/freelance-ai/actions/workflows/ci.yml/badge.svg)
 
 ## Why it exists
 
@@ -19,12 +19,14 @@ Most freelancers price by gut feeling and lose money to scope creep, late paymen
 | **Pricing models** | The same project priced six ways: fixed, hourly, milestones, retainer, value-based, plus Lean / Recommended / Premium packages for the client to choose from. |
 | **Client and country** | Client type (individual, small business, startup, agency, enterprise) and client country change the rate; quotes show the client's currency. |
 | **Proposal** | `--proposal` prints a client-ready proposal draft. |
+| **Quote history** | `--save` keeps every version and shows what changed since the last one. |
+| **Malayalam** | WhatsApp-ready client messages in Malayalam. |
 | **Budget fit** | Cuts "later" then "should" scope to meet a budget, or says plainly that the core scope does not fit. |
 | **Living Project Card** | Updated every reply, opening with **what changed** (price, hours, scope). |
 | **Modes** | Beginner (explains) and expert (phase split, cost drivers, sensitivity, your own rate). |
 | **Paperwork** | Which papers a project needs, one short entry each, plus templates: scope sheet, agreement, change request, acceptance note. |
 | **Onboarding** | First 48 hours, kickoff agenda, communication rules, weekly update format, difficult-situation scripts. |
-| **Context** | Domain notes (fitness and nutrition, e-commerce and booking, ERP and internal systems). Country notes: India/Kerala (GST, TDS, DPDP Act, UPI), plus clients in the UAE/Gulf, UK, EU and US/Canada. |
+| **Context** | Domain notes (fitness and nutrition, e-commerce and booking, ERP and internal systems, education, healthcare, real estate). Country notes: India/Kerala (GST, TDS, DPDP Act, UPI), plus clients in the UAE/Gulf, UK, EU and US/Canada. |
 | **Low token use** | The skill loads only the file a step needs; the calculator reads the data files so the model never has to. |
 
 ## Quick start
@@ -45,6 +47,7 @@ python scripts/quote.py examples/fitness-personal.spec.json --budget 100000
 python scripts/quote.py examples/erp-company.spec.json --mode expert --rate 900
 python scripts/quote.py examples/fitness-uk-client.spec.json --options     # pricing models and packages
 python scripts/quote.py examples/fitness-uk-client.spec.json --proposal    # client-ready proposal draft
+python scripts/quote.py examples/fitness-uk-client.spec.json --save project-state   # keep versions, see what changed
 ```
 
 Run the tests: `python -m unittest discover -s tests -v`

@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.2.0 (2026-11-10)
+- Country packs checked against published guidance: India GST export-of-services conditions, LUT and FIRC, GST thresholds, DPDP Rules dates (13 Nov 2025, 12 Nov 2026, 12 May 2027), US W-8BEN, UK B2B VAT reverse charge, UAE imported-services VAT. Sources were payment and accounting firms and one HMRC page, not all primary government pages; verify before relying on them. EU rules, stamp duty and TDS were not re-checked.
+- Quote history: `--save DIR` stores each version and prints what changed since the last one; `--history FOLDER` lists versions.
+- New domain notes: education/LMS, healthcare/clinic, real estate/listings; new calculator category and features for them.
+- Malayalam client message templates (have a Malayalam speaker check the tone).
+
 ## 1.1.0 (2026-11-10)
 - Pricing models: `--options` shows fixed, hourly, milestones, retainer and value-based pricing, plus Lean / Recommended / Premium packages.
 - Client type (`client_type`) and client country (`client_region`) change the rate; prices show in the client's currency (approximate rates in `data/regions.json`).

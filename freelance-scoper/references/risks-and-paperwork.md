@@ -1,6 +1,6 @@
 # Risks and tax points
 
-Last reviewed: 2026-11-08. Laws, thresholds and fees change. Present everything below as "verify before relying on it", and never as legal or tax advice.
+Last reviewed: 2026-11-10. Laws, thresholds and fees change. Present everything below as "verify before relying on it", and never as legal or tax advice.
 
 ## Common project risks and mitigations
 
@@ -22,10 +22,10 @@ See `paperwork-guide.md` for which papers a project needs, a one-entry-per-paper
 ## India: execution and tax points to verify
 
 - **Validity.** Electronic contracts and e-signatures are generally valid under the Information Technology Act, 2000. An agreement can be valid yet hard to use as evidence if stamp duty was not paid; stamp duty rules differ by state, so check the state's current rules or ask a lawyer.
-- **GST.** Registration is generally required once annual turnover from services crosses a threshold (commonly stated as Rs 20 lakh, lower in some special-category states), or earlier in some situations such as certain inter-state supply. Verify the current threshold. Invoices must follow GST format once registered. Exporting services to foreign clients has its own rules (for example a Letter of Undertaking); verify.
+- **GST.** Registration is generally required once annual turnover from services crosses a threshold (commonly stated as Rs 20 lakh, lower in some special-category states), or earlier in some situations such as certain inter-state supply. Published guidance still gives Rs 20 lakh for services (Rs 10 lakh in special-category states); verify the current figure. Invoices must follow GST format once registered. Exporting services to foreign clients has its own rules (five conditions, a yearly Letter of Undertaking or IGST with refund, and a FIRC as proof); see `regions/international-clients.md`.
 - **TDS.** Business clients may deduct TDS on professional or technical fees. Ask whether they will, and keep the certificates for your income-tax filing.
 - **Income tax.** Freelance income is business or professional income. Keep invoices and bank records. A chartered accountant is worth consulting once income grows.
-- **Data protection.** India's Digital Personal Data Protection Act, 2023 governs processing of personal data; its rules have been coming into force in phases, so verify the current status. Practical baseline for any app that stores personal data: clear consent, collect only what is needed, a privacy notice, a way to access and delete data, secure storage, and a breach response plan.
+- **Data protection.** India's Digital Personal Data Protection Act, 2023 governs processing of personal data; the Rules were notified on 13 November 2025 and come into force in phases: the Data Protection Board provisions at once, consent-manager rules on 12 November 2026, and the main duties (notice, consent, security, breach notification, children's data, erasure, cross-border transfer) on 12 May 2027. Plan products you build now for those duties. Verify dates with MeitY. Practical baseline for any app that stores personal data: clear consent, collect only what is needed, a privacy notice, a way to access and delete data, secure storage, and a breach response plan.
 
 ## When to involve a professional
 - Contract value above a few lakh rupees, or any app handling health, financial, or children's data.

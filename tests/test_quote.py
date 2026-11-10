@@ -83,6 +83,32 @@ class Options(unittest.TestCase):
         self.assertIn("Payment schedule", text)
 
 
+class History(unittest.TestCase):
+    def test_save_and_history(self):
+        import tempfile
+        with tempfile.TemporaryDirectory() as d:
+            s = spec(); r = quote.compute(s, DATA)
+            f1, n1, prev1 = quote.save_state(s, r, d)
+            self.assertEqual((n1, prev1), (1, None))
+            s2 = spec(); s2["client_region"] = "UK"
+            f2, n2, prev2 = quote.save_state(s2, quote.compute(s2, DATA), d)
+            self.assertEqual(n2, 2)
+            self.assertEqual(prev2["price"]["fair_ex_gst"], r["price"]["fair_ex_gst"])
+            self.assertIn("v2", quote.md_history(f2))
+
+
+class NewDomains(unittest.TestCase):
+    def test_new_category_and_features(self):
+        s = spec(); s["category"] = "Clinic / healthcare app"
+        s["features"] = ["Patient records (health data)", "Prescription / report upload", "Course & lesson management"]
+        self.assertGreater(quote.compute(s, DATA)["hours"]["total"], 0)
+
+    def test_domain_files_listed_in_skill(self):
+        text = (SKILL / "SKILL.md").read_text()
+        for f in (SKILL / "references" / "domains").glob("*.md"):
+            self.assertIn(f.stem, text, f.name)
+
+
 class Data(unittest.TestCase):
     def test_regions_complete(self):
         for name, r in DATA["_regions"].items():

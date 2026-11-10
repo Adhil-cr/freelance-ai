@@ -14,6 +14,8 @@ Usage:
     python scripts/quote.py spec.json --rate 900 --exp 1.1 --min-rate 600
     python scripts/quote.py spec.json --options             # six pricing models + lean/recommended/premium packages
     python scripts/quote.py spec.json --proposal            # client-ready proposal draft (markdown)
+    python scripts/quote.py spec.json --save project-state  # save as v1, v2, ... and auto-compare with the last version
+    python scripts/quote.py --history project-state/<project>   # list saved versions
 
 Spec (JSON). Only category, usage and tech are required:
 {
@@ -338,6 +340,35 @@ def md_proposal(spec, data, res, opt, packs):
     return "\n".join(L)
 
 
+def _slug(spec, fallback):
+    name = spec.get("project") or spec.get("client") or fallback
+    out = "".join(ch.lower() if ch.isalnum() else "-" for ch in name).strip("-")
+    return "-".join(p for p in out.split("-") if p) or "project"
+
+
+def save_state(spec, res, root, fallback="project"):
+    """Save spec and result as the next version. Returns (folder, version, previous_result_or_None)."""
+    folder = Path(root) / _slug(spec, fallback)
+    folder.mkdir(parents=True, exist_ok=True)
+    versions = sorted(int(p.stem.split("-v")[1]) for p in folder.glob("result-v*.json"))
+    prev = json.loads((folder / "result-v{}.json".format(versions[-1])).read_text()) if versions else None
+    n = (versions[-1] + 1) if versions else 1
+    (folder / "spec-v{}.json".format(n)).write_text(json.dumps(spec, indent=2))
+    (folder / "result-v{}.json".format(n)).write_text(json.dumps(res, indent=2))
+    return folder, n, prev
+
+
+def md_history(folder):
+    rows = ["| Version | Confidence | Fair price | Hours | Features | Client type / country |", "|---|---|---|---|---|---|"]
+    for p in sorted(Path(folder).glob("result-v*.json"), key=lambda x: int(x.stem.split("-v")[1])):
+        r = json.loads(p.read_text())
+        i = r["inputs"]
+        rows.append("| v{} | {} | {} | {} | {} | {} / {} |".format(
+            p.stem.split("-v")[1], i["confidence"], inr(r["price"]["fair_ex_gst"]), r["hours"]["total"],
+            len(r["features"]), i.get("client_type", "-"), i.get("client_region", "-")))
+    return "\n".join(rows) if len(rows) > 2 else "No saved versions in {}".format(folder)
+
+
 def budget_fit(spec, data, budget, **kw):
     """Drop 'later' then 'should' features (largest hours first) until fair price <= budget."""
     work = copy.deepcopy(spec)
@@ -482,7 +513,7 @@ def sensitivity(spec, data, **kw):
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("spec")
+    ap.add_argument("spec", nargs="?")
     ap.add_argument("--mode", choices=["brief", "full", "expert"], default="full")
     ap.add_argument("--json", action="store_true")
     ap.add_argument("--budget", type=float, help="client budget before GST; drops low-priority scope to fit")
@@ -491,10 +522,17 @@ def main():
     ap.add_argument("--exp", type=float)
     ap.add_argument("--min-rate", type=float)
     ap.add_argument("--data", default=str(DATA))
+    ap.add_argument("--save", metavar="DIR", help="save spec and result as the next version under DIR/<project>; prints what changed since the last version")
+    ap.add_argument("--history", metavar="FOLDER", help="list saved versions in FOLDER (a DIR/<project> folder) and exit")
     ap.add_argument("--options", action="store_true", help="show six pricing models and lean/recommended/premium packages")
     ap.add_argument("--proposal", action="store_true", help="print a client-ready proposal draft (markdown)")
     a = ap.parse_args()
 
+    if a.history:
+        print(md_history(a.history))
+        return
+    if not a.spec:
+        ap.error("spec is required unless --history is used")
     spec = json.loads(Path(a.spec).read_text())
     data = json.loads(Path(a.data).read_text())
     reg_path = Path(a.data).with_name("regions.json")
@@ -520,6 +558,13 @@ def main():
         print(md_full(res, expert=(a.mode == "expert"), sens=sens))
     if a.options:
         print("\n" + md_options(opt, res))
+    if a.save:
+        folder, n, prev = save_state(spec, res, a.save, Path(a.spec).stem.replace(".spec", ""))
+        print("\nSaved as v{} in {}".format(n, folder))
+        if prev is not None and not a.compare:
+            print("\n**Changed since v{}:**".format(n - 1))
+            for line in diff(prev, res):
+                print("- " + line)
     if a.compare:
         old = json.loads(Path(a.compare).read_text())
         print("\n**Changed since last run:**")

@@ -39,10 +39,10 @@ Open questions: 1) … 2) …
 - **Draft** (usage or budget unknown): card, questions, range only.
 - **Firm** (usage, budget, must-haves known): add scope split, stack, range, budget fit, first messages.
 - **Quote-ready** (client confirmed scope): single price, payments, proposal, paperwork, onboarding.
-Save `project-state/spec-v[n].json` and `result-v[n].json` if files are possible; otherwise the card is the state.
+If files are possible, run the calculator with `--save project-state`: it stores spec and result as v1, v2... and prints what changed since the last version (`--history <folder>` lists them). Otherwise the card is the state.
 
 ## Step 3: Scope and stack
-Tag every feature MUST / SHOULD / LATER / OUT. Personal use leaves out admin, roles and analytics by default. Suggest a stack that fits the project and the freelancer's skills with one trade-off line. Domain depth: `references/domains/` (fitness-nutrition, ecommerce-booking, erp-internal-systems); otherwise say depth is thinner.
+Tag every feature MUST / SHOULD / LATER / OUT. Personal use leaves out admin, roles and analytics by default. Suggest a stack that fits the project and the freelancer's skills with one trade-off line. Domain depth: `references/domains/` (fitness-nutrition, ecommerce-booking, erp-internal-systems, education-lms, healthcare-clinic, real-estate-listings); otherwise say depth is thinner.
 
 ## Step 4: Price
 1. Write the spec (format in the `scripts/quote.py` docstring; examples in `examples/`). Use exact feature names; anything else goes in `custom_features` with stated hours.
@@ -63,7 +63,7 @@ On new information: update the spec, rerun with `--compare`, open with **What ch
 | How the price is built, hand calculation | `references/pricing-model.md` |
 | Stages, advance, sign-off, payments | `references/process-stages.md` |
 | Onboarding, kickoff, difficult clients, handover | `references/client-onboarding.md` (read only the section needed) |
-| Message templates | `references/client-communication.md` |
+| Message templates | `references/client-communication.md`; Malayalam-speaking client: `references/client-communication-malayalam.md` |
 | Which papers a project needs | `references/paperwork-guide.md`, then one file in `references/paperwork/` |
 | A paper's template | one file in `templates/` |
 | Risks and tax points | `references/risks-and-paperwork.md` |
